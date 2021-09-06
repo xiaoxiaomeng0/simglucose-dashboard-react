@@ -20,12 +20,10 @@ class SimObj(object):
                  env,
                  controller,
                  sim_time,
-                 animate=True,
                  path=None):
         self.env = env
         self.controller = controller
         self.sim_time = sim_time
-        self.animate = animate
         self._ctrller_kwargs = None
         self.path = path
 
@@ -33,7 +31,6 @@ class SimObj(object):
         obs, reward, done, info = self.env.reset()
         experiment = Experiment.query.filter_by(
             experiment_name=experiment_name).first()
-
         while self.env.time < self.env.scenario.start_time + self.sim_time:
             action = self.controller.policy(obs, reward, done, **info)
             new_result = Result(patient_id=info["patient_name"],
@@ -60,7 +57,8 @@ def batch_sim(sim_instances, experiment_name, parallel=False):
     tic = time.time()
     if parallel and pathos:
         with Pool() as p:
-            results = p.map(sim, sim_instances)
+            # results = p.map(sim, sim_instances)
+            results = []
     else:
         if parallel and not pathos:
             print('Simulation is using single process even though parallel=True.')

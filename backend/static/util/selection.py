@@ -37,8 +37,8 @@ def parsetime(s, period):
 
 
 def select_scenario():
-    sim_start_hour = request.form["start_hour"]
-    sim_start_period = request.form["start_period"]
+    sim_start_hour = request.json["start_time"]
+    sim_start_period = request.json["start_period"]
     if sim_start_period == "AM":
         convert_time = timedelta(hours=float(sim_start_hour.split(":")[0]))
     else:
@@ -48,38 +48,38 @@ def select_scenario():
     start_time = datetime.combine(datetime.now().date(),
                                   datetime.min.time()) + convert_time
 
-    scenario_select = request.form["scenario"]
+    scenario_select = request.json["scenario"]
     if scenario_select == "1":
         rand_scenario_seed = int(
-            request.form["random_seed"])
+            request.json["random_seed"])
         scenario = RandomScenario(
             start_time=start_time, seed=rand_scenario_seed)
     elif scenario_select == "2":
         scenario_tuple = []
-        breakfast_time = request.form.get("breakfast-time", None)
-        breakfast_period = request.form.get("breakfast-period", None)
-        breakfast_size = request.form.get("breakfast-size", None)
+        breakfast_time = request.json.get("breakfast_time", None)
+        breakfast_period = request.json.get("breakfast_period", None)
+        breakfast_size = request.json.get("breakfast_size", None)
         if breakfast_time and breakfast_size:
             scenario_tuple.append(
                 (parsetime(breakfast_time, breakfast_period), float(breakfast_size)))
 
-        lunch_time = request.form.get("lunch-time", None)
-        lunch_period = request.form.get("lunch-period", None)
-        lunch_size = request.form.get("lunch-size", None)
+        lunch_time = request.json.get("lunch_time", None)
+        lunch_period = request.json.get("lunch_period", None)
+        lunch_size = request.json.get("lunch_size", None)
         if lunch_time and lunch_size:
             scenario_tuple.append(
                 (parsetime(lunch_time, lunch_period), float(lunch_size)))
 
-        dinner_time = request.form.get("dinner-time", None)
-        dinner_period = request.form.get("dinner-period", None)
-        dinner_size = request.form.get("dinner-size", None)
+        dinner_time = request.json.get("dinner_time", None)
+        dinner_period = request.json.get("dinner_period", None)
+        dinner_size = request.json.get("dinner_size", None)
         if dinner_time and dinner_size:
             scenario_tuple.append(
                 (parsetime(dinner_time, dinner_period), float(dinner_size)))
 
-        snack_time = request.form.get("snack-time", None)
-        snack_period = request.form.get("snack-period", None)
-        snack_size = request.form.get("snack-size", None)
+        snack_time = request.json.get("snack_time", None)
+        snack_period = request.json.get("snack_period", None)
+        snack_size = request.json.get("snack_size", None)
         if snack_time and snack_size:
             scenario_tuple.append(
                 (parsetime(snack_time, snack_period), float(snack_size)))
@@ -90,9 +90,9 @@ def select_scenario():
 
 
 def select_path():
-    path = request.form["path"]
+    path = request.json["path"]
     if path == "custom":
-        save_path = request.form["custom-path-input"]
+        save_path = request.json["path_input"]
     elif path == "default" or path == "":
         foldername = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         save_path = os.path.join(os.path.abspath('./results/'), foldername)
@@ -100,49 +100,44 @@ def select_path():
 
 
 def select_controller():
-    controller = request.form["controller"]
+    controller = request.json["controller"]
     if controller == "basal-bolus":
         controller = BBController()
     return controller
 
 
 def select_patient():
-    adults = request.form.get("adults", None)
-    adolescents = request.form.get("adolescents", None)
-    children = request.form.get("children", None)
-    custom_patient = request.form.get("patientID", None)
+    adults = request.json.get("adults", None)
+    adolescents = request.json.get("adolescents", None)
+    children = request.json.get("children", None)
+    custom_patient = request.json.get("custom_patient", None)
     patient_params = pd.read_csv(PATIENT_PARA_FILE)
     all_patient_names = list(patient_params["Name"].values)
-    patients = []
+    customed_patient_list = []
     if adolescents:
-        patients = all_patient_names[0:10]
+        customed_patient_list = all_patient_names[0:10]
     if adults:
-        patients = all_patient_names[10:20]
+        customed_patient_list = all_patient_names[10:20]
     if children:
-        patients = all_patient_names[20:30]
+        customed_patient_list = all_patient_names[20:30]
     if custom_patient:
-        custom_patients = json.loads(custom_patient)
-        patients.extend(custom_patients)
-    return patients
-
-
-def select_animate():
-    animate = request.form["animate"]
-    animate = str2bool(animate)
-    return animate
-
+        for p_name in all_patient_names:
+            selected_patient = request.json.get(p_name, None)
+            if selected_patient:
+                customed_patient_list.append(selected_patient)
+    return customed_patient_list
 
 def select_parallel():
-    parallel = request.form["parallel"]
+    parallel = request.json["parallel"]
     parallel = str2bool(parallel)
     return parallel
 
 
 def build_env(scenario, start_time):
     patient_names = select_patient()
-    cgm_sensor_name = request.form["sensor"]
-    cgm_seed = int(request.form["seed_noise"])
-    insulin_pump_name = request.form["pump"]
+    cgm_sensor_name = request.json["sensor"]
+    cgm_seed = int(request.json["seed_noise"])
+    insulin_pump_name = request.json["pump"]
 
     def local_build_env(pname):
         patient = T1DPatient.withName(pname)
