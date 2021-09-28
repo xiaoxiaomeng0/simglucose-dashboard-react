@@ -9,7 +9,6 @@ for (let p of patient_list) {
 
 const useForm = () => {
   const [values, setValues] = useState({
-    experiment_name: "",
     sim_time: "",
     start_time: "1:00",
     start_period: "AM",

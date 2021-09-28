@@ -63,6 +63,10 @@ def batch_sim(sim_instances, experiment_name, parallel=False):
         if parallel and not pathos:
             print('Simulation is using single process even though parallel=True.')
         results = [s.simulate(experiment_name) for s in sim_instances]
+    finished_experiment = Experiment.query.filter_by(experiment_name=experiment_name).first()
+    finished_experiment.status = "completed"
+    db.session.commit()
+    db.session.close()
     toc = time.time()
     print('Simulation took {} sec.'.format(toc - tic))
     return results

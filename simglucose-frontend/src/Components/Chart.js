@@ -43,12 +43,15 @@ const RenderLineChart = ({ listOfResults }) => {
       <Line type="monotone" dataKey="cgm" stroke="#82ca9d" dot={false} />
       <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
       <XAxis
+        // scale="time"
+        // type="number"
+        // domain={["dataMin", "dataMax"]}
         dataKey="time"
         height={100}
         tick={<CustomizedAxisTick />}
         interval="preserveStartEnd"
       />
-      <YAxis />
+      <YAxis type="number" domain={["auto", "auto"]} />
       <Tooltip />
       <Legend align="right" height={18} />
     </LineChart>

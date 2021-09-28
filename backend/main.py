@@ -5,7 +5,7 @@ import requests
 # from static.util.catch_keyerror import catch_keyerror
 from static.util.selection import select_path, select_parallel, select_scenario, build_env, select_controller, select_patient
 from sim_engine import SimObj, batch_sim
-from models import Result, db, app, ResultSchema, Experiment
+from models import Result, db, app, ResultSchema, Experiment, ExperimentSchema
 from flask_login import login_user, LoginManager, current_user, logout_user, login_required
 from forms import RegisterForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -21,6 +21,8 @@ import platform
 result_schema = ResultSchema()
 results_schema = ResultSchema(many=True)
 
+experiment_schema = ExperimentSchema()
+
 
 PATIENT_PARA_FILE = pkg_resources.resource_filename(
     'simglucose', 'params/vpatient_params.csv')
@@ -32,6 +34,12 @@ def show_all_results():
     all_results = Result.query.all()
     return results_schema.jsonify(all_results)
 
+@app.route("/<experiment_name>")
+def show_curr_experiment(experiment_name):
+    curr_experiment = Experiment.query.filter_by(
+        experiment_name=experiment_name).first()
+    db.session.commit()
+    return experiment_schema.jsonify(curr_experiment)
 
 @app.route("/results/<experiment_name>/<patient_id>")
 def show_curr_experiment_results(experiment_name, patient_id):
@@ -40,6 +48,7 @@ def show_curr_experiment_results(experiment_name, patient_id):
     all_results = Result.query.filter_by(
         experiment_id=curr_experiment.id, patient_id=patient_id).all()
     db.session.commit()
+    # db.session.close()
     return results_schema.jsonify(all_results)
 
 
@@ -50,7 +59,7 @@ def simulate():
     experiment_name = request.json["experiment_name"]
     time = datetime.now()
     new_experiment = Experiment(
-        experiment_name=experiment_name, time=time)
+        experiment_name=experiment_name, time=time, status="pending")
     db.session.add(new_experiment)
     db.session.commit()
     sim_time = timedelta(hours=float(request.json["sim_time"]))

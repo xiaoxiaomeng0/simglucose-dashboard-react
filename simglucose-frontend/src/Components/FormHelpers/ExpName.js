@@ -1,16 +1,10 @@
 import React from "react";
 
-function ExpName({ values, handleChange }) {
+function ExpName({ experimentNameRef }) {
   return (
     <div>
       <label htmlFor="experiment_name">Please input experiment name:</label>
-      <input
-        type="text"
-        id="experiment_name"
-        value={values.experiment_name}
-        name="experiment_name"
-        onChange={handleChange}
-      />
+      <input type="text" id="experiment_name" ref={experimentNameRef} />
     </div>
   );
 }

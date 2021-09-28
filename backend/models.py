@@ -60,8 +60,14 @@ class Experiment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     experiment_name = db.Column(db.String, unique=True, nullable=False)
     time = db.Column(db.DateTime, nullable=False)
+    status = db.Column(db.String, nullable=False)
     results = db.relationship("Result", backref="experiment", lazy=True)
-    
+
+class ExperimentSchema(ma.Schema):
+    class Meta:
+        fields = ('experiment_id', "experiment_name", "time", "status")
+
+
 
 
 # class User(UserMixin, db.Model):
