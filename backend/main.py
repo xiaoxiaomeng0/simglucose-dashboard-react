@@ -41,12 +41,12 @@ def show_curr_experiment(experiment_name):
     db.session.commit()
     return experiment_schema.jsonify(curr_experiment)
 
-@app.route("/results/<experiment_name>/<patient_id>")
-def show_curr_experiment_results(experiment_name, patient_id):
+@app.route("/results/<experiment_name>")
+def show_curr_experiment_results(experiment_name):
     curr_experiment = Experiment.query.filter_by(
         experiment_name=experiment_name).first()
     all_results = Result.query.filter_by(
-        experiment_id=curr_experiment.id, patient_id=patient_id).all()
+        experiment_id=curr_experiment.id).all()
     db.session.commit()
     # db.session.close()
     return results_schema.jsonify(all_results)

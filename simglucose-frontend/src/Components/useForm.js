@@ -2,41 +2,27 @@ import { useState } from "react";
 import AddPatient from "../Util/patientList";
 
 const patient_list = AddPatient();
-const init_patient_object = {};
-for (let p of patient_list) {
-  init_patient_object[p] = "";
-}
+// const init_patient_object = {};
+// for (let p of patient_list) {
+//   init_patient_object[p] = "";
+// }
 
 const useForm = () => {
-  const [values, setValues] = useState({
-    sim_time: "",
-    start_time: "1:00",
-    start_period: "AM",
-    scenario: "1",
-    random_seed: "",
-    breakfast_time: "1:00",
-    breakfast_period: "AM",
-    breakfast_size: "",
-    lunch_time: "1:00",
-    lunch_period: "AM",
-    lunch_size: "",
-    dinner_time: "1:00",
-    dinner_period: "AM",
-    dinner_size: "",
-    snack_time: "1:00",
-    snack_period: "AM",
-    snack_size: "",
+  const initialValues = {
     adults: "",
     adolescents: "",
     children: "",
     custom_patient: "",
     sensor: "Dexcom",
-    seed_noise: "",
     pump: "Cozmo",
     controller: "basal-bolus",
     parallel: "False",
     path: "default",
-  });
+    scenario: "1",
+    random_seed: "",
+    seed_noise: "",
+  };
+  const [values, setValues] = useState(initialValues);
 
   //   const [error, setError] = useState({});
 
@@ -70,11 +56,15 @@ const useForm = () => {
       });
     }
   };
+  const setInitialValues = () => {
+    setValues(initialValues);
+  };
 
   return {
     values,
     handleChange,
     customPatientHandleChange,
+    setInitialValues,
   };
 };
 export default useForm;
